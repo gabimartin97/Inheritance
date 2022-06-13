@@ -1,24 +1,10 @@
 #include <iostream>
 #include <string>
 #include <conio.h>
-#include <random>
+#include "Dice.h"
+#include "MemeFighter.h"
 
-class Dice
-{
-public:
-	int Roll( int nDice )
-	{
-		int total = 0;
-		for( int n = 0; n < nDice; n++ )
-		{
-			total += d6( rng );
-		}
-		return total;
-	}
-private:
-	std::uniform_int_distribution<int> d6 = std::uniform_int_distribution<int>( 1,6 );
-	std::mt19937 rng = std::mt19937( std::random_device{}() );
-};
+Dice dice;
 
 void Engage( MemeFighter& f1,MemeFighter& f2 )
 {
@@ -26,18 +12,19 @@ void Engage( MemeFighter& f1,MemeFighter& f2 )
 	auto* p1 = &f1;
 	auto* p2 = &f2;
 	// determine attack order
-	if( p1->GetInitiative() < p2->GetInitiative() )
+	if( p1->GetInitiative(dice) < p2->GetInitiative(dice) )
 	{
 		std::swap( p1,p2 );
 	}
 	// execute attacks
-	p1->Punch( *p2 );
-	p2->Punch( *p1 );
+	p1->Punch( *p2, dice);
+	p2->Punch( *p1, dice);
 }
 
 int main()
 {
-	MemeFrog f1( "Dat Boi" );
+	
+	MemeFrog f1("Dat Boi");
 	MemeStoner f2( "Good Guy Greg" );
 
 	while( f1.IsAlive() && f2.IsAlive() )
@@ -45,11 +32,11 @@ int main()
 		// trade blows
 		Engage( f1,f2 );
 		// special moves
-		f2.SpecialMove();
-		f1.SpecialMove( f2 );
+		f2.SpecialMove(dice);
+		f1.SpecialMove( f2, dice);
 		// end of turn maintainence
-		f1.Tick();
-		f2.Tick();
+		f1.Tick(dice);
+		f2.Tick(dice);
 
 		std::cout << "Press any key to continue...";
 		while( !_kbhit() );
